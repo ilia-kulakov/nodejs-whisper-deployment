@@ -1,0 +1,20 @@
+name: Continous Integration
+on: [push]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
+      - name: Generate a random JWT secret
+        id: generate-secret
+        run: echo "::set-output name=JWT_SECRET::$(openssl rand -base64 30)"
+        shell: bash
+        - name: Run tests
+        run: npm test
+        env:
+          MONGODB_URI: mongodb://localhost:27018/whispering-database-test
+          PORT: 3000
+          SALT_ROUNDS: 10
+          JWT_SECRET: ${{ steps.generate-secret.outputs.JWT_SECRET }}
