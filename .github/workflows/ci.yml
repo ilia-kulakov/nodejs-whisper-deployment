@@ -5,14 +5,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install dependencies
         run: npm install
+
       - name: Generate a random JWT secret
         id: generate-secret
-        run: echo "::set-output name=JWT_SECRET::$(openssl rand -base64 30)"
+        run: echo "JWT_SECRET=$(openssl rand -base64 30)" >> $GITHUB_OUTPUT
         shell: bash
-        - name: Run tests
-        run: npm test
+
+      - name: Prepare environment
+        run: docker compose up -d test-db
+
+      - name: Wait for environment
+        run: sleep 5
+
+      - name: Run tests
+        run: npx jest
         env:
           MONGODB_URI: mongodb://localhost:27018/whispering-database-test
           PORT: 3000
